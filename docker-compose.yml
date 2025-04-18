@@ -4,8 +4,8 @@ services:
     container_name: task-db
     environment:
       POSTGRES_DB: taskdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Str0ngP@ssw0rd!2025
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -20,9 +20,9 @@ services:
       - db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/taskdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: Str0ngP@ssw0rd!2025
-      JWT_SECRET: VGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleSB0aGF0IHlvdSBjYW4gc3RvcmUgc2FmZWx5Lg==
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
 
 volumes:
   postgres_data:
