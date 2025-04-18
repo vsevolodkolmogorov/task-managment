@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16
+    container_name: task-db
+    environment:
+      POSTGRES_DB: taskdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Str0ngP@ssw0rd!2025
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: task-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/taskdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Str0ngP@ssw0rd!2025
+      JWT_SECRET: VGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleSB0aGF0IHlvdSBjYW4gc3RvcmUgc2FmZWx5Lg==
+
+volumes:
+  postgres_data:
