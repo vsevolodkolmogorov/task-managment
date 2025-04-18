@@ -30,6 +30,7 @@ bin/
 *.iml
 *.iws
 out/
+.env
 
 ## NetBeans
 nbproject/private/
