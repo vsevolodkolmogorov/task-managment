@@ -1,9 +1,12 @@
 package ru.effectivemobile.taskmanagement.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.effectivemobile.taskmanagement.model.Priority;
 import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.validation.OnCreate;
 
 /**
  * DTO used by regular users to create or update a task.
@@ -15,13 +18,14 @@ import ru.effectivemobile.taskmanagement.model.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class TaskRequestUserDto {
+public class TaskRequestUserDto implements TaskRequestDto  {
 
     /**
      * Title of the task.
      * Example: "Implement user login"
      */
     @Schema(description = "Title of the task", example = "Implement user login")
+    @NotBlank(message = "Title must not be blank",  groups = OnCreate.class)
     private String title;
 
     /**
@@ -36,6 +40,8 @@ public class TaskRequestUserDto {
      * Example: "HIGH"
      */
     @Schema(description = "Priority level of the task (e.g., LOW, MEDIUM, HIGH)", example = "HIGH")
+    @NotNull(message = "Priority must not be blank", groups = OnCreate.class)
+    @NotBlank(message = "Priority must not be blank",  groups = OnCreate.class)
     private Priority priority;
 
     /**
@@ -43,6 +49,7 @@ public class TaskRequestUserDto {
      * Example: "PENDING"
      */
     @Schema(description = "Current status of the task (e.g., PENDING, IN_PROGRESS, COMPLETED)", example = "PENDING")
+    @NotNull(message = "Status must not be blank")
     private Status status;
 }
 

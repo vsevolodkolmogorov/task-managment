@@ -1,6 +1,7 @@
 package ru.effectivemobile.taskmanagement.util;
 
-import ru.effectivemobile.taskmanagement.dto.TaskRequestDto;
+import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
+import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
 import ru.effectivemobile.taskmanagement.model.Task;
 import ru.effectivemobile.taskmanagement.model.User;
@@ -15,14 +16,25 @@ public class TaskConverter {
      * @param assignee  The assignee of the task (User object).
      * @return          The Task entity built from the provided DTO and user objects.
      */
-    public static Task toEntity(TaskRequestDto dto, User author, User assignee) {
+    public static Task toEntity(TaskRequestAdminDto dto, User admin, User assignee) {
         return Task.builder()
                 .title(dto.getTitle())            // Set the title from the DTO.
                 .description(dto.getDescription()) // Set the description from the DTO.
                 .status(dto.getStatus())           // Set the status from the DTO.
                 .priority(dto.getPriority())       // Set the priority from the DTO.
-                .author(author)                    // Set the author from the provided User object.
+                .author(admin)                    // Set the author from the provided User object.
                 .assignee(assignee)                // Set the assignee from the provided User object.
+                .build();                          // Build the Task entity.
+    }
+
+    public static Task toEntity(TaskRequestUserDto dto, User user) {
+        return Task.builder()
+                .title(dto.getTitle())            // Set the title from the DTO.
+                .description(dto.getDescription()) // Set the description from the DTO.
+                .status(dto.getStatus())           // Set the status from the DTO.
+                .priority(dto.getPriority())       // Set the priority from the DTO.
+                .author(user)                    // Set the author from the provided User object.
+                .assignee(user)                // Set the assignee from the provided User object.
                 .build();                          // Build the Task entity.
     }
 

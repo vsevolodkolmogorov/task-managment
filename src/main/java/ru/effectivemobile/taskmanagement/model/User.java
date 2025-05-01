@@ -18,6 +18,7 @@ import java.util.List;
  * Implements Spring Security's {@link UserDetails} interface to provide user authentication and authorization functionality.
  * </p>
  */
+
 @Entity
 @Getter
 @Builder

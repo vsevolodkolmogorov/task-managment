@@ -1,9 +1,8 @@
 package ru.effectivemobile.taskmanagement.service;
 
-import ru.effectivemobile.taskmanagement.dto.TaskRequestDto;
+import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
-import ru.effectivemobile.taskmanagement.model.User;
 
 import java.util.List;
 
@@ -24,9 +23,8 @@ public interface TaskService {
      * </p>
      *
      * @param id the ID of the task to delete
-     * @param user the user attempting to delete the task (for authorization)
      */
-    void deleteTask(Long id, User user);
+    void deleteTask(Long id);
 
     /**
      * Updates a task based on the provided task request.
@@ -35,10 +33,10 @@ public interface TaskService {
      * </p>
      *
      * @param id the ID of the task to update
-     * @param taskRequestDto the request DTO containing the updated task details
+     * @param taskRequestAdminDto the request DTO containing the updated task details
      * @return the updated task as a response DTO
      */
-    TaskResponseDto updateTask(Long id, TaskRequestDto taskRequestDto);
+    TaskResponseDto updateAdminTask(Long id, TaskRequestAdminDto taskRequestAdminDto);
 
     /**
      * Updates a task assigned to a user.
@@ -49,32 +47,32 @@ public interface TaskService {
      *
      * @param id the ID of the task to update
      * @param taskRequestDto the request DTO containing the updated task details
-     * @param user the user who is updating the task (for validation)
      * @return the updated task as a response DTO
      */
-    TaskResponseDto updateUserTask(Long id, TaskRequestUserDto taskRequestDto, User user);
+    TaskResponseDto updateUserTask(Long id, TaskRequestUserDto taskRequestDto);
 
     /**
-     * Creates a new task.
+     * Creates a new task for Admin.
      * <p>
      * This method allows the creation of a new task by an admin or the task's author.
      * </p>
      *
-     * @param taskRequestDto the request DTO containing the task details to create
+     * @param taskRequestAdminDto the request DTO containing the task details to create
      * @return the created task as a response DTO
      */
-    TaskResponseDto createTask(TaskRequestDto taskRequestDto);
+    TaskResponseDto createAdminTask(TaskRequestAdminDto taskRequestAdminDto);
 
     /**
-     * Retrieves a task by its ID.
+     * Creates a new task for User.
      * <p>
-     * This method retrieves the details of a specific task by its unique ID.
+     * This method allows the creation of a new task only by user.
      * </p>
      *
-     * @param id the ID of the task to retrieve
-     * @return the task details as a response DTO
+     * @param taskRequestUserDto the request DTO containing the task details to create
+     * @return the created task as a response DTO
      */
-    TaskResponseDto getTask(Long id);
+    TaskResponseDto createUserTask(TaskRequestUserDto taskRequestUserDto);
+
 
     /**
      * Retrieves a task assigned to a specific user.
@@ -82,11 +80,10 @@ public interface TaskService {
      * This method retrieves a task by its ID that is associated with a specific user.
      * </p>
      *
-     * @param userId the ID of the user to which the task is assigned
      * @param id the ID of the task to retrieve
      * @return the task details as a response DTO
      */
-    TaskResponseDto getUserTask(Long userId, Long id);
+    TaskResponseDto getTask(Long id);
 
     /**
      * Retrieves all tasks.
@@ -96,16 +93,4 @@ public interface TaskService {
      *
      * @return a list of all tasks as response DTOs
      */
-    List<TaskResponseDto> getAllTasks();
-
-    /**
-     * Retrieves all tasks assigned to a specific user.
-     * <p>
-     * This method retrieves all tasks assigned to a user based on their user ID.
-     * </p>
-     *
-     * @param id the ID of the user to retrieve tasks for
-     * @return a list of tasks assigned to the user as response DTOs
-     */
-    List<TaskResponseDto> getAllUsersTasks(Long id);
-}
+    List<TaskResponseDto> getAllTasks();}

@@ -6,14 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.effectivemobile.taskmanagement.dto.TaskRequestDto;
+import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.User;
 import ru.effectivemobile.taskmanagement.service.TaskService;
 import ru.effectivemobile.taskmanagement.util.CurrentUserProvider;
+import ru.effectivemobile.taskmanagement.validation.OnCreate;
+import ru.effectivemobile.taskmanagement.validation.OnUpdate;
 
 import java.util.List;
 
@@ -50,19 +53,9 @@ public class TaskController {
      */
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Validated(OnCreate.class)
     public ResponseEntity<TaskResponseDto> createTask(@Valid @RequestBody TaskRequestUserDto userDto) {
-        User user = currentUserProvider.getCurrentUser();
-
-        TaskRequestDto dto = TaskRequestDto.builder()
-                .title(userDto.getTitle())
-                .description(userDto.getDescription())
-                .status(userDto.getStatus())
-                .priority(userDto.getPriority())
-                .authorId(user.getId())
-                .assigneeId(user.getId())
-                .build();
-
-        TaskResponseDto created = taskService.createTask(dto);
+        TaskResponseDto created = taskService.createUserTask(userDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -74,10 +67,9 @@ public class TaskController {
      */
     @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TaskResponseDto> createTaskForAdmin(@Valid @RequestBody TaskRequestDto dto) {
-        User user = currentUserProvider.getCurrentUser();
-        dto.setAuthorId(user.getId());
-        TaskResponseDto created = taskService.createTask(dto);
+    @Validated(OnCreate.class)
+    public ResponseEntity<TaskResponseDto> createTaskForAdmin(@Valid @RequestBody TaskRequestAdminDto dto) {
+        TaskResponseDto created = taskService.createAdminTask(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -91,12 +83,6 @@ public class TaskController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<TaskResponseDto> getTask(@PathVariable Long id) {
-        User user = currentUserProvider.getCurrentUser();
-
-        if (user.getRole().equals(Role.USER)) {
-            return ResponseEntity.ok(taskService.getUserTask(id, user.getId()));
-        }
-
         return ResponseEntity.ok(taskService.getTask(id));
     }
 
@@ -109,12 +95,6 @@ public class TaskController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
-        User user = currentUserProvider.getCurrentUser();
-
-        if (user.getRole().equals(Role.USER)) {
-            return ResponseEntity.ok(taskService.getAllUsersTasks(user.getId()));
-        }
-
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
@@ -127,33 +107,23 @@ public class TaskController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
+    @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestUserDto userDto) {
-        User user = currentUserProvider.getCurrentUser();
-        return ResponseEntity.ok(taskService.updateUserTask(id, userDto, user));
+        return ResponseEntity.ok(taskService.updateUserTask(id, userDto));
     }
 
     /**
      * Updates a task with full access. Only available to ADMIN users.
      *
      * @param id the task ID
-     * @param taskDto the full update payload
+     * @param adminDto the full update payload
      * @return the updated task
      */
     @PutMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TaskResponseDto> updateTaskAdmin(@PathVariable Long id, @Valid @RequestBody TaskRequestDto taskDto) {
-        User user = currentUserProvider.getCurrentUser();
-
-        TaskRequestDto dto = TaskRequestDto.builder()
-                .title(taskDto.getTitle())
-                .description(taskDto.getDescription())
-                .status(taskDto.getStatus())
-                .priority(taskDto.getPriority())
-                .authorId(user.getId())
-                .assigneeId(taskDto.getAssigneeId())
-                .build();
-
-        return ResponseEntity.ok(taskService.updateTask(id, dto));
+    @Validated(OnUpdate.class)
+    public ResponseEntity<TaskResponseDto> updateTaskAdmin(@PathVariable Long id, @Valid @RequestBody TaskRequestAdminDto adminDto) {
+        return ResponseEntity.ok(taskService.updateAdminTask(id, adminDto));
     }
 
     /**
@@ -166,8 +136,7 @@ public class TaskController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        User user = currentUserProvider.getCurrentUser();
-        taskService.deleteTask(id, user);
+        taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 }

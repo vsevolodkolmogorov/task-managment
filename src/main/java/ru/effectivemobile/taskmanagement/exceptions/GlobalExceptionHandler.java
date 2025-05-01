@@ -1,5 +1,6 @@
 package ru.effectivemobile.taskmanagement.exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,9 +39,15 @@ public class GlobalExceptionHandler {
      * @return A ResponseEntity containing the error details and HTTP status code 409 (Conflict)
      */
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    public ResponseEntity<ErrorResponse> handleEmailExists(EmailAlreadyRegisteredException ex,
+    public ResponseEntity<ErrorResponse> EmailAlreadyRegisteredException(EmailAlreadyRegisteredException ex,
                                                            HttpServletRequest request) {
         return createResponse(ex.getMessage(), request, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<ErrorResponse> TaskNotFoundException(TaskNotFoundException ex,
+                                                           HttpServletRequest request) {
+        return createResponse(ex.getMessage(), request, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -54,7 +62,7 @@ public class GlobalExceptionHandler {
      * @return A ResponseEntity containing the error details and HTTP status code 404 (Not Found)
      */
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEmailExists(UserNotFoundException ex,
+    public ResponseEntity<ErrorResponse> UserNotFoundException(UserNotFoundException ex,
                                                            HttpServletRequest request) {
         return createResponse(ex.getMessage(), request, HttpStatus.NOT_FOUND);
     }
@@ -91,6 +99,11 @@ public class GlobalExceptionHandler {
         return createResponse("Access denied", request, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex,  HttpServletRequest request) {
+        return createResponse("Entity not founded", request, HttpStatus.NOT_FOUND);
+    }
+
     /**
      * Handles validation exceptions triggered when request data does not meet validation constraints.
      * <p>
@@ -118,6 +131,8 @@ public class GlobalExceptionHandler {
 
         return createResponse(errorMessage, request, HttpStatus.BAD_REQUEST);
     }
+
+
 
     /**
      * Creates a standardized error response that contains information about the exception.
