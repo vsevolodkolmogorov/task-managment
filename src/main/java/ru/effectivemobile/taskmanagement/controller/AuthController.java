@@ -2,6 +2,7 @@ package ru.effectivemobile.taskmanagement.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.effectivemobile.taskmanagement.dto.AuthResponseDTO;
@@ -15,19 +16,11 @@ import ru.effectivemobile.taskmanagement.service.impl.AuthServiceImpl;
  */
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Endpoints for user registration and login")
 public class AuthController {
 
     private final AuthServiceImpl authService;
-
-    /**
-     * Constructor injection of authentication service.
-     *
-     * @param authService the authentication service implementation
-     */
-    public AuthController(AuthServiceImpl authService) {
-        this.authService = authService;
-    }
 
     /**
      * Registers a new user in the system.
