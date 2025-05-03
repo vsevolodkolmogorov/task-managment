@@ -96,7 +96,6 @@ class TaskControllerTest {
             .description("description test")
             .status(Status.IN_PROGRESS)
             .priority(Priority.HIGH)
-            .authorId(admin.getId())
             .assigneeId(user.getId())
             .build();
 
@@ -236,7 +235,7 @@ class TaskControllerTest {
     @Test
     void getAllTasks() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=5"))
                 .andExpect(status().isOk())
@@ -249,11 +248,54 @@ class TaskControllerTest {
     }
 
     @Test
+    void getAllTasksWithStatusInProgress() throws Exception {
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), any(), any(Pageable.class))).willReturn(pageUser);
+
+        mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatus().toString()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
+    void getAllTasksWithPriorityHigh() throws Exception {
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(taskService.getAllTasks(any(), eq(Priority.HIGH), any(Pageable.class))).willReturn(pageUser);
+
+        mockMvc.perform(get("/tasks?page=1&size=10&priority=HIGH"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
+    void getAllTasksWithPriorityAndStatus() throws Exception {
+        given(currentUserProvider.getCurrentUser()).willReturn(user);
+        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), eq(Priority.HIGH), any(Pageable.class))).willReturn(pageUser);
+
+        mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS&priority=HIGH"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatus().toString()))
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
     void getAllTasksAdmin() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(admin);
-        given(taskService.getAllTasks(any(Pageable.class))).willReturn(pageAdmin);
+        given(taskService.getAllTasks(any(), any(),any(Pageable.class))).willReturn(pageAdmin);
 
-        mockMvc.perform(get("/tasks?page=1&size=5"))
+        mockMvc.perform(get("/tasks?page=1&size=10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value(responseAdmin.getTitle()))
                 .andExpect(jsonPath("$.content[0].description").value(responseAdmin.getDescription()))
@@ -277,7 +319,7 @@ class TaskControllerTest {
     @Test
     void getAllTaskNotFound() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(pageable)).willThrow(new EntityNotFoundException("Entity not founded"));
+        given(taskService.getAllTasks(any(), any(), any(Pageable.class))).willThrow(new EntityNotFoundException("Entity not founded"));
 
         mockMvc.perform(get("/taskss")
                         .contentType(MediaType.APPLICATION_JSON))
