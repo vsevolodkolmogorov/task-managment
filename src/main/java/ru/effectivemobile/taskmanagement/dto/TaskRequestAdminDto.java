@@ -61,15 +61,6 @@ public class TaskRequestAdminDto implements TaskRequestDto {
     private Status status;
 
     /**
-     * ID of the user who created the task.
-     * This field is hidden for the client as it is typically managed by the system.
-     * Example: "101"
-     */
-    @Schema(description = "ID of the user who created the task", example = "101", hidden = true)
-    @NotNull(message = "AuthorId must not be blank")
-    private Long authorId;
-
-    /**
      * ID of the user assigned to the task.
      * Example: "205"
      */

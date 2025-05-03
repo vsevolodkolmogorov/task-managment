@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
+import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.Status;
 
 import java.util.List;
 
@@ -95,5 +97,5 @@ public interface TaskService {
      *
      * @return a list of all tasks as response DTOs
      */
-    Page<TaskResponseDto> getAllTasks(Pageable pageable);
+    Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Pageable pageable);
 }
