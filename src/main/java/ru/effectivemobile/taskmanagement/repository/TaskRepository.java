@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.Status;
 import ru.effectivemobile.taskmanagement.model.Task;
 
 import java.util.List;
@@ -25,8 +27,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @param userId the ID of the user (either as the author or assignee)
      * @return a list of tasks associated with the given user, or an empty list if no tasks are found
      */
-    @Query("SELECT t FROM Task t WHERE t.author.id = :userId OR t.assignee.id = :userId")
-    Page<Task> findAllByAuthorAndAssignee(@Param("userId") Long userId, Pageable pageable);
+    @Query("SELECT t FROM Task t WHERE (t.author.id = :userId OR t.assignee.id = :userId) " +
+            "AND (:status IS NULL OR t.status = :status) " +
+            "AND (:priority IS NULL OR t.priority = :priority)")
+    Page<Task> findAllByFiltersAuthorAndAssignee(@Param("userId") Long userId,
+                                                 @Param("status") Status status,
+                                                 @Param("priority") Priority priority,
+                                                 Pageable pageable);
+
+    @Query("SELECT t FROM Task t WHERE (:status IS NULL OR t.status = :status) AND (:priority IS NULL OR t.priority = :priority)")
+    Page<Task> findAllByFilters(@Param("status") Status status,
+                                @Param("priority") Priority priority,
+                                Pageable pageable);
 
     /**
      * Finds a task by its ID where the given user is both the author and the assignee of the task.
