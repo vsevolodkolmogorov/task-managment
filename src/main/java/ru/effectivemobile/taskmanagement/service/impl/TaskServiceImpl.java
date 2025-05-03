@@ -1,6 +1,8 @@
 package ru.effectivemobile.taskmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
@@ -191,20 +193,17 @@ public class TaskServiceImpl implements TaskService {
      * @return A list of all task response DTOs.
      */
     @Override
-    public List<TaskResponseDto> getAllTasks() {
+    public Page<TaskResponseDto> getAllTasks(Pageable pageable) {
         User user = currentUserProvider.getCurrentUser();
-        List<Task> taskList = taskRepository.findAll();;
+        Page<Task> taskList = taskRepository.findAll(pageable);
 
         if (user.getRole().equals(Role.USER)) {
             // Retrieve all tasks for a user, throw an exception if not found.
-            taskList = taskRepository.findAllByAuthorAndAssignee(user.getId())
-                    .orElseThrow(() -> new TaskNotFoundException("No tasks found for user with id " + user.getId()));
+            taskList = taskRepository.findAllByAuthorAndAssignee(user.getId(), pageable);
         }
 
         // Convert each task to a response DTO and return the list.
-        return taskList.stream()
-                .map(TaskConverter::toDto)
-                .collect(Collectors.toList());
+        return taskList.map(TaskConverter::toDto);
     }
 
 

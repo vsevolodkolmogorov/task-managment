@@ -1,5 +1,7 @@
 package ru.effectivemobile.taskmanagement.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
@@ -93,4 +95,5 @@ public interface TaskService {
      *
      * @return a list of all tasks as response DTOs
      */
-    List<TaskResponseDto> getAllTasks();}
+    Page<TaskResponseDto> getAllTasks(Pageable pageable);
+}
