@@ -12,7 +12,7 @@ public class TaskConverter {
      * Converts a TaskRequestDto object into a Task entity.
      *
      * @param dto       The TaskRequestDto object containing the task data.
-     * @param author    The author of the task (User object).
+     * @param admin    The author of the task (User object).
      * @param assignee  The assignee of the task (User object).
      * @return          The Task entity built from the provided DTO and user objects.
      */
