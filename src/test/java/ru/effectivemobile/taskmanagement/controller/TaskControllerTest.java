@@ -10,6 +10,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
@@ -133,6 +137,10 @@ class TaskControllerTest {
             .assigneeEmail(user.getEmail())
             .build();
 
+    Pageable pageable = PageRequest.of(0, 10);
+    Page<TaskResponseDto> pageUser = new PageImpl<>(List.of(responseUser), pageable, 1);
+    Page<TaskResponseDto> pageAdmin = new PageImpl<>(List.of(responseAdmin), pageable, 1);
+
     // POST TESTS USER CREATE
 
     @Test
@@ -228,21 +236,31 @@ class TaskControllerTest {
     @Test
     void getAllTasks() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks()).willReturn(List.of(responseUser));
+        given(taskService.getAllTasks(any(Pageable.class))).willReturn(pageUser);
 
-        mockMvc.perform(get("/tasks"))
+        mockMvc.perform(get("/tasks?page=1&size=5"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(responseUser))));
+                .andExpect(jsonPath("$.content[0].title").value(responseUser.getTitle()))
+                .andExpect(jsonPath("$.content[0].description").value(responseUser.getDescription()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
     }
 
     @Test
     void getAllTasksAdmin() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(admin);
-        given(taskService.getAllTasks()).willReturn(List.of(responseAdmin));
+        given(taskService.getAllTasks(any(Pageable.class))).willReturn(pageAdmin);
 
-        mockMvc.perform(get("/tasks"))
+        mockMvc.perform(get("/tasks?page=1&size=5"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(responseAdmin))));
+                .andExpect(jsonPath("$.content[0].title").value(responseAdmin.getTitle()))
+                .andExpect(jsonPath("$.content[0].description").value(responseAdmin.getDescription()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
     }
 
     @Test
@@ -259,7 +277,7 @@ class TaskControllerTest {
     @Test
     void getAllTaskNotFound() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks()).willThrow(new EntityNotFoundException("Entity not founded"));
+        given(taskService.getAllTasks(pageable)).willThrow(new EntityNotFoundException("Entity not founded"));
 
         mockMvc.perform(get("/taskss")
                         .contentType(MediaType.APPLICATION_JSON))
