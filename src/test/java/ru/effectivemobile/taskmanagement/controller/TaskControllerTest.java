@@ -235,7 +235,7 @@ class TaskControllerTest {
     @Test
     void getAllTasks() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(any(), any(), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=5"))
                 .andExpect(status().isOk())
@@ -250,7 +250,7 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithStatusInProgress() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), any(), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS"))
                 .andExpect(status().isOk())
@@ -264,7 +264,7 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityHigh() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(), eq(Priority.HIGH), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(any(), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&priority=HIGH"))
                 .andExpect(status().isOk())
@@ -278,7 +278,7 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityAndStatus() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), eq(Priority.HIGH), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS&priority=HIGH"))
                 .andExpect(status().isOk())
@@ -293,7 +293,7 @@ class TaskControllerTest {
     @Test
     void getAllTasksAdmin() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(admin);
-        given(taskService.getAllTasks(any(), any(),any(Pageable.class))).willReturn(pageAdmin);
+        given(taskService.getAllTasks(any(), any(), any(), any(), any(Pageable.class))).willReturn(pageAdmin);
 
         mockMvc.perform(get("/tasks?page=1&size=10"))
                 .andExpect(status().isOk())
@@ -319,7 +319,7 @@ class TaskControllerTest {
     @Test
     void getAllTaskNotFound() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(), any(), any(Pageable.class))).willThrow(new EntityNotFoundException("Entity not founded"));
+        given(taskService.getAllTasks(any(), any(), any(), any(), any(Pageable.class))).willThrow(new EntityNotFoundException("Entity not founded"));
 
         mockMvc.perform(get("/taskss")
                         .contentType(MediaType.APPLICATION_JSON))

@@ -9,6 +9,7 @@ import ru.effectivemobile.taskmanagement.model.Priority;
 import ru.effectivemobile.taskmanagement.model.Status;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service interface for managing tasks within the task management system.
@@ -97,5 +98,5 @@ public interface TaskService {
      *
      * @return a list of all tasks as response DTOs
      */
-    Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Pageable pageable);
+    Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Long authorId, Long assigneeId, Pageable pageable);
 }

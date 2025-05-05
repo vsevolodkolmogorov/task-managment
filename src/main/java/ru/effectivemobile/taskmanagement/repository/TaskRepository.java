@@ -35,9 +35,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                                                  @Param("priority") Priority priority,
                                                  Pageable pageable);
 
-    @Query("SELECT t FROM Task t WHERE (:status IS NULL OR t.status = :status) AND (:priority IS NULL OR t.priority = :priority)")
+    @Query("SELECT t FROM Task t WHERE (:status IS NULL OR t.status = :status) " +
+            "AND (:priority IS NULL OR t.priority = :priority) " +
+            "AND (:authorId IS NULL OR t.author.id = :authorId) " +
+            "AND (:assigneeId IS NULL OR t.assignee.id = :assigneeId)")
     Page<Task> findAllByFilters(@Param("status") Status status,
                                 @Param("priority") Priority priority,
+                                @Param("authorId") Long authorId,
+                                @Param("assigneeId") Long assigneeId,
                                 Pageable pageable);
 
     /**
