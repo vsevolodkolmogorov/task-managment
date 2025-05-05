@@ -8,12 +8,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import ru.effectivemobile.taskmanagement.model.User;
 import ru.effectivemobile.taskmanagement.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     private final UserRepository userRepository;
 
@@ -27,9 +31,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        logger.info("Attempting to load user with email: {}", email);
+
         // Retrieve the user from the repository using the email.
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email " + email));
+                .orElseThrow(() -> {
+                    logger.error("User not found with email: {}", email);
+                    return new UsernameNotFoundException("User not found with email " + email);
+                });
+
+        // Log successful retrieval of user details.
+        logger.info("Successfully loaded user with email: {}", email);
 
         // Return a Spring Security User object, setting the username, password, and role.
         return new org.springframework.security.core.userdetails.User(

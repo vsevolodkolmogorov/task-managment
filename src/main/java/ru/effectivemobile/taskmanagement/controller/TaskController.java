@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import ru.effectivemobile.taskmanagement.validation.OnUpdate;
  * REST controller for managing tasks.
  * Provides endpoints for users and admins to create, retrieve, update, and delete tasks.
  */
+@Slf4j
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/tasks")
@@ -47,7 +49,9 @@ public class TaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Validated(OnCreate.class)
     public ResponseEntity<TaskResponseDto> createTask(@Valid @RequestBody TaskRequestUserDto userDto) {
+        log.info("Creating task for user with id={}. Task data: {}", currentUserProvider.getCurrentUser().getId(), userDto);
         TaskResponseDto created = taskService.createUserTask(userDto);
+        log.info("Task created successfully with id={}", created.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -61,7 +65,9 @@ public class TaskController {
     @PreAuthorize("hasRole('ADMIN')")
     @Validated(OnCreate.class)
     public ResponseEntity<TaskResponseDto> createTaskForAdmin(@Valid @RequestBody TaskRequestAdminDto dto) {
+        log.info("Admin creating task with data: {}", dto);
         TaskResponseDto created = taskService.createAdminTask(dto);
+        log.info("Admin created task successfully with id={}", created.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -74,7 +80,9 @@ public class TaskController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<TaskResponseDto> getTask(@PathVariable Long id) {
+        log.info("Fetching task with id={}", id);
         TaskResponseDto response = taskService.getTask(id);
+        log.info("Task with id={} fetched successfully", id);
         return ResponseEntity.ok(response);
     }
 
@@ -100,8 +108,11 @@ public class TaskController {
             @Parameter(description = "Page number (zero-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size
     ) {
+        log.info("Fetching tasks with filters: status={}, priority={}, authorId={}, assigneeId={}, page={}, size={}",
+                status, priority, authorId, assigneeId, page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<TaskResponseDto> tasks = taskService.getAllTasks(status, priority, authorId, assigneeId, pageable);
+        log.info("Fetched {} tasks for page {} of size {}", tasks.getTotalElements(), page, size);
         return ResponseEntity.ok(tasks);
     }
 
@@ -116,7 +127,9 @@ public class TaskController {
     @PreAuthorize("hasRole('USER')")
     @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestUserDto userDto) {
+        log.info("Updating task with id={}. New data: {}", id, userDto);
         TaskResponseDto updated = taskService.updateUserTask(id, userDto);
+        log.info("Task with id={} updated successfully", id);
         return ResponseEntity.ok(updated);
     }
 
@@ -131,7 +144,9 @@ public class TaskController {
     @PreAuthorize("hasRole('ADMIN')")
     @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTaskAdmin(@PathVariable Long id, @Valid @RequestBody TaskRequestAdminDto adminDto) {
+        log.info("Admin updating task with id={}. New data: {}", id, adminDto);
         TaskResponseDto updated = taskService.updateAdminTask(id, adminDto);
+        log.info("Admin updated task with id={} successfully", id);
         return ResponseEntity.ok(updated);
     }
 
@@ -144,7 +159,9 @@ public class TaskController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        log.info("Deleting task with id={}", id);
         taskService.deleteTask(id);
+        log.info("Task with id={} deleted successfully", id);
         return ResponseEntity.noContent().build();
     }
 }

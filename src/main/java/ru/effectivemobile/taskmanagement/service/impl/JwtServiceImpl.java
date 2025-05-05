@@ -36,12 +36,17 @@ public class JwtServiceImpl implements JwtService {
      */
     @Override
     public String generateToken(UserDetails userDetails) {
-        return Jwts.builder()
+        logger.info("Generating token for user: {}", userDetails.getUsername());
+
+        String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(jwtSecretKey(), SignatureAlgorithm.HS256)
                 .compact();
+
+        logger.info("Generated token for user: {}", userDetails.getUsername());
+        return token;
     }
 
     /**
@@ -53,6 +58,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String extractUsername(String token) {
         try {
+            logger.info("Extracting username from token");
             return Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey())
                     .build()
@@ -75,7 +81,15 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
-        return username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        boolean valid = username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+
+        if (valid) {
+            logger.info("Token is valid for user: {}", userDetails.getUsername());
+        } else {
+            logger.warn("Token is invalid for user: {}", userDetails.getUsername());
+        }
+
+        return valid;
     }
 
     /**
@@ -92,7 +106,13 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(token)
                     .getBody()
                     .getExpiration();
-            return expiration.before(new Date());
+            boolean expired = expiration.before(new Date());
+
+            if (expired) {
+                logger.info("Token is expired");
+            }
+
+            return expired;
         } catch (JwtException e) {
             logger.error("Failed to parse token for expiration", e);
             return true; // Treat invalid token as expired

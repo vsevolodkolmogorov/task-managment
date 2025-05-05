@@ -10,7 +10,8 @@ import ru.effectivemobile.taskmanagement.model.*;
 import ru.effectivemobile.taskmanagement.repository.*;
 import ru.effectivemobile.taskmanagement.service.TaskService;
 import ru.effectivemobile.taskmanagement.util.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service implementation for managing tasks.
@@ -19,6 +20,8 @@ import ru.effectivemobile.taskmanagement.util.*;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
@@ -35,15 +38,18 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTask(Long id) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("Attempting to delete task with id {} by user {}", id, user.getUsername());
 
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " not found"));
 
         if (user.getRole().equals(Role.USER) && !task.getAuthor().getId().equals(user.getId())) {
+            logger.error("Access denied: user {} is not the author of the task {}", user.getUsername(), id);
             throw new AccessDeniedException("The user is not the author of the task!");
         }
 
         taskRepository.deleteById(id);
+        logger.info("Task with id {} successfully deleted", id);
     }
 
     /**
@@ -58,6 +64,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskResponseDto updateAdminTask(Long taskId, TaskRequestAdminDto dto) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("Admin user {} is updating task with id {}", user.getUsername(), taskId);
 
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
@@ -73,6 +80,7 @@ public class TaskServiceImpl implements TaskService {
         task.setId(taskId);
         taskRepository.save(task);
 
+        logger.info("Task with id {} successfully updated by admin {}", taskId, user.getUsername());
         return TaskConverter.toDto(task);
     }
 
@@ -90,6 +98,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskResponseDto updateUserTask(Long taskId, TaskRequestUserDto dto) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("User {} is updating task with id {}", user.getUsername(), taskId);
 
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
@@ -98,6 +107,7 @@ public class TaskServiceImpl implements TaskService {
         boolean isAssignee = task.getAssignee().getId().equals(user.getId());
 
         if (!isAuthor && !isAssignee) {
+            logger.error("Access denied: user {} is neither the author nor assignee of task {}", user.getUsername(), taskId);
             throw new AccessDeniedException("User is neither the author nor the assignee of the task");
         }
 
@@ -112,6 +122,7 @@ public class TaskServiceImpl implements TaskService {
         task.setId(taskId);
         taskRepository.save(task);
 
+        logger.info("Task with id {} successfully updated by user {}", taskId, user.getUsername());
         return TaskConverter.toDto(task);
     }
 
@@ -126,14 +137,15 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskResponseDto createAdminTask(TaskRequestAdminDto dto) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("Admin user {} is creating a new task", user.getUsername());
 
         User assignee = findUserById(dto.getAssigneeId());
         Task task = TaskConverter.toEntity(dto, user, assignee);
         taskRepository.save(task);
 
+        logger.info("Task with id {} successfully created by admin {}", task.getId(), user.getUsername());
         return TaskConverter.toDto(task);
     }
-
 
     /**
      * Creates a new task on behalf of a regular user.
@@ -145,13 +157,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskResponseDto createUserTask(TaskRequestUserDto dto) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("User {} is creating a new task", user.getUsername());
 
         Task task = TaskConverter.toEntity(dto, user);
         taskRepository.save(task);
 
+        logger.info("Task with id {} successfully created by user {}", task.getId(), user.getUsername());
         return TaskConverter.toDto(task);
     }
-
 
     /**
      * Retrieves a single task by ID.
@@ -164,6 +177,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskResponseDto getTask(Long id) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("User {} is retrieving task with id {}", user.getUsername(), id);
 
         Task task;
         if (user.getRole().equals(Role.USER)) {
@@ -174,6 +188,7 @@ public class TaskServiceImpl implements TaskService {
                     .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " not found"));
         }
 
+        logger.info("Task with id {} retrieved successfully by user {}", id, user.getUsername());
         return TaskConverter.toDto(task);
     }
 
@@ -192,6 +207,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Long authorId, Long assigneeId, Pageable pageable) {
         User user = currentUserProvider.getCurrentUser();
+        logger.info("User {} is retrieving tasks with filters: status={}, priority={}, authorId={}, assigneeId={}",
+                user.getUsername(), status, priority, authorId, assigneeId);
 
         Page<Task> taskList;
         if (user.getRole().equals(Role.USER)) {
@@ -200,6 +217,7 @@ public class TaskServiceImpl implements TaskService {
             taskList = taskRepository.findAllByFilters(status, priority, authorId, assigneeId, pageable);
         }
 
+        logger.info("Retrieved {} tasks successfully", taskList.getTotalElements());
         return taskList.map(TaskConverter::toDto);
     }
 

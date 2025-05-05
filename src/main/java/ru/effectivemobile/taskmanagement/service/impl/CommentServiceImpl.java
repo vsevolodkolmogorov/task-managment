@@ -1,6 +1,8 @@
 package ru.effectivemobile.taskmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.effectivemobile.taskmanagement.dto.CommentRequestDTO;
 import ru.effectivemobile.taskmanagement.dto.CommentResponseDTO;
@@ -29,6 +31,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
+
     private final CurrentUserProvider currentUserProvider;
     private final TaskRepository taskRepository;
     private final CommentRepository commentRepository;
@@ -48,16 +52,21 @@ public class CommentServiceImpl implements CommentService {
         User user = currentUserProvider.getCurrentUser();
 
         if (dto.getText().isEmpty() || dto.getText().isBlank()) {
+            logger.error("Attempt to create comment with empty or null text. Task ID: {}", taskId);
             throw new NullTextCommentException("Text of the comment is null or empty!");
         }
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task with id " + taskId + " not found"));
+                .orElseThrow(() -> {
+                    logger.error("Task with ID {} not found", taskId);
+                    return new TaskNotFoundException("Task with id " + taskId + " not found");
+                });
 
         boolean isAuthor = task.getAuthor().getId().equals(user.getId());
         boolean isAssignee = task.getAssignee().getId().equals(user.getId());
 
         if (user.getRole() != Role.ADMIN && !(isAuthor || isAssignee)) {
+            logger.warn("User with ID {} attempted to comment on task ID {} without sufficient privileges", user.getId(), taskId);
             throw new AccessDeniedException("User is not author or assignee of task!");
         }
 
@@ -67,7 +76,9 @@ public class CommentServiceImpl implements CommentService {
                 .task(task)
                 .build();
 
-        return CommentConverter.toDto(commentRepository.save(comment));
+        Comment savedComment = commentRepository.save(comment);
+        logger.info("Created comment with ID {} for task ID {}", savedComment.getId(), taskId);
+        return CommentConverter.toDto(savedComment);
     }
 
     /**
@@ -80,9 +91,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponseDTO> getAllComments(long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task with id " + taskId + " not found"));
+                .orElseThrow(() -> {
+                    logger.error("Task with ID {} not found", taskId);
+                    return new TaskNotFoundException("Task with id " + taskId + " not found");
+                });
 
         List<Comment> commentList = commentRepository.findAllByTaskId(task.getId());
+        logger.info("Retrieved {} comments for task ID {}", commentList.size(), taskId);
 
         return commentList.stream()
                 .map(CommentConverter::toDto)

@@ -3,6 +3,7 @@ package ru.effectivemobile.taskmanagement.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.effectivemobile.taskmanagement.dto.AuthResponseDTO;
@@ -14,6 +15,7 @@ import ru.effectivemobile.taskmanagement.service.impl.AuthServiceImpl;
  * Controller responsible for handling authentication operations such as user registration and login.
  * Provides endpoints for issuing JWT tokens.
  */
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -30,7 +32,10 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO registerDTO) {
-        return ResponseEntity.ok(authService.register(registerDTO));
+        log.info("Register request received for email: {}", registerDTO.getEmail());
+        AuthResponseDTO response = authService.register(registerDTO);
+        log.info("User registered successfully: {}", registerDTO.getEmail());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -41,6 +46,9 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDTO) {
-        return ResponseEntity.ok(authService.login(loginDTO));
+        log.info("Login attempt for email: {}", loginDTO.getEmail());
+        AuthResponseDTO response = authService.login(loginDTO);
+        log.info("Login successful for email: {}", loginDTO.getEmail());
+        return ResponseEntity.ok(response);
     }
 }

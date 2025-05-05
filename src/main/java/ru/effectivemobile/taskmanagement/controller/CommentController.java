@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ import java.util.List;
  * All endpoints require JWT authentication with roles USER or ADMIN.
  * </p>
  */
+@Slf4j
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/tasks/{taskId}/comments")
@@ -64,7 +66,9 @@ public class CommentController {
             @Parameter(description = "ID of the task to comment on", required = true)
             @PathVariable long taskId
     ) {
+        log.info("Creating comment for taskId={} with text length={}", taskId, dto.getText().length());
         CommentResponseDTO created = commentService.createUserComment(taskId, dto);
+        log.info("Comment created successfully for taskId={} with id={}", taskId, created.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -90,6 +94,9 @@ public class CommentController {
             @Parameter(description = "ID of the task whose comments are being retrieved", required = true)
             @PathVariable long taskId
     ) {
-        return ResponseEntity.ok(commentService.getAllComments(taskId));
+        log.info("Fetching all comments for taskId={}", taskId);
+        List<CommentResponseDTO> comments = commentService.getAllComments(taskId);
+        log.info("Found {} comment(s) for taskId={}", comments.size(), taskId);
+        return ResponseEntity.ok(comments);
     }
 }
