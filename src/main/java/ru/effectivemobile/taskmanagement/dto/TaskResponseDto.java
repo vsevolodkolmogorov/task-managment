@@ -5,6 +5,8 @@ import lombok.*;
 import ru.effectivemobile.taskmanagement.model.Priority;
 import ru.effectivemobile.taskmanagement.model.Status;
 
+import java.util.List;
+
 /**
  * Data Transfer Object for returning detailed task information.
  * <p>
@@ -82,4 +84,11 @@ public class TaskResponseDto {
      */
     @Schema(description = "Email of the assigned user", example = "assignee@example.com")
     private String assigneeEmail;
+
+    /**
+     * Email of the user who is assigned to the task.
+     * Example: "assignee@example.com"
+     */
+    @Schema(description = "Comments of the task")
+    private List<CommentResponseDTO> commentList;
 }
