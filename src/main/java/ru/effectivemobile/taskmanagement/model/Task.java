@@ -1,7 +1,11 @@
 package ru.effectivemobile.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 /**
  * Entity representing a task in the system.
@@ -67,8 +71,7 @@ public class Task {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
-    /**
-     * TODO: Add support for comments.
-     * The task may later support adding comments for collaboration and feedback.
-     */
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList;
 }

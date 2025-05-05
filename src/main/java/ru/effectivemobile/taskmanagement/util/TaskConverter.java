@@ -53,6 +53,7 @@ public class TaskConverter {
         dto.setDescription(task.getDescription());  // Set the task description.
         dto.setStatus(task.getStatus());            // Set the task status.
         dto.setPriority(task.getPriority());        // Set the task priority.
+        dto.setCommentList(task.getCommentList().stream().map(CommentConverter::toDto).toList()); // Set the task comments.
 
         // Set author details if the author is not null.
         if (task.getAuthor() != null) {
