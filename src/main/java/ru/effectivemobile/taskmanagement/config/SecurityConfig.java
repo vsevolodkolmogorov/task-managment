@@ -16,8 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.effectivemobile.taskmanagement.service.impl.UserDetailsServiceImpl;
 import ru.effectivemobile.taskmanagement.util.JwtAuthenticationFilter;
+
+import java.util.List;
 
 /**
  * Security configuration class for the application.
@@ -45,7 +50,8 @@ public class SecurityConfig {
             "auth/login",
             "/",
             "auth/register",
-            "/auth/**"
+            "/auth/**",
+            "/auth/me"
     };
 
     /**
@@ -64,6 +70,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection (since we're using JWT)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorization -> authorization
                         // Publicly accessible URLs
                         .requestMatchers(AUTH_WHITELIST).permitAll()
@@ -85,6 +92,19 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable);  // Disable HTTP basic authentication (using JWT instead)
 
         return http.build();
+    }
+
+    private CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     /**

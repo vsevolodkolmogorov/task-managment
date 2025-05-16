@@ -9,7 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.effectivemobile.taskmanagement.dto.AuthResponseDTO;
 import ru.effectivemobile.taskmanagement.dto.LoginRequestDTO;
 import ru.effectivemobile.taskmanagement.dto.RegisterRequestDTO;
+import ru.effectivemobile.taskmanagement.model.User;
 import ru.effectivemobile.taskmanagement.service.impl.AuthServiceImpl;
+import ru.effectivemobile.taskmanagement.service.impl.JwtServiceImpl;
+import ru.effectivemobile.taskmanagement.util.CurrentUserProvider;
+
+import java.util.Map;
 
 /**
  * Controller responsible for handling authentication operations such as user registration and login.
@@ -23,6 +28,7 @@ import ru.effectivemobile.taskmanagement.service.impl.AuthServiceImpl;
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    private final JwtServiceImpl jwtService;
 
     /**
      * Registers a new user in the system.
@@ -50,5 +56,12 @@ public class AuthController {
         AuthResponseDTO response = authService.login(loginDTO);
         log.info("Login successful for email: {}", loginDTO.getEmail());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponseDTO> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        User user = authService.getCurrentUser(token);
+        return ResponseEntity.ok(new AuthResponseDTO(token, user));
     }
 }

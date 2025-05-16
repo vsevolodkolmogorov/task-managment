@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         // Log successful registration
         logger.info("User registered successfully with email: {}", request.getEmail());
 
-        return new AuthResponseDTO(jwt);  // Return the token
+        return new AuthResponseDTO(jwt, user);  // Return the token
     }
 
     /**
@@ -95,7 +95,13 @@ public class AuthServiceImpl implements AuthService {
         // Log successful login
         logger.info("User logged in successfully with email: {}", request.getEmail());
 
-        return new AuthResponseDTO(jwt);  // Return the token
+        return new AuthResponseDTO(jwt, user);  // Return the token
+    }
+
+    @Override
+    public User getCurrentUser(String token) {
+        String email = jwtService.extractUsername(token);
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with email not found: " + email));
     }
 
     /**

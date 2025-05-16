@@ -3,6 +3,7 @@ package ru.effectivemobile.taskmanagement.service;
 import ru.effectivemobile.taskmanagement.dto.AuthResponseDTO;
 import ru.effectivemobile.taskmanagement.dto.LoginRequestDTO;
 import ru.effectivemobile.taskmanagement.dto.RegisterRequestDTO;
+import ru.effectivemobile.taskmanagement.model.User;
 
 /**
  * Service interface for handling authentication-related operations.
@@ -37,4 +38,6 @@ public interface AuthService {
      * @return an authentication response containing a JWT token
      */
     AuthResponseDTO login(LoginRequestDTO request);
+
+    User getCurrentUser(String token);
 }

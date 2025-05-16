@@ -2,6 +2,7 @@ package ru.effectivemobile.taskmanagement.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import ru.effectivemobile.taskmanagement.model.User;
 
 /**
  * Data Transfer Object (DTO) for authentication response.
@@ -33,4 +34,10 @@ public class AuthResponseDTO {
             example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     )
     private String token;
+
+    @Schema(
+            description = "Authenticated user information"
+    )
+    private User user;
 }
+
