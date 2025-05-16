@@ -5,6 +5,7 @@ import lombok.*;
 import ru.effectivemobile.taskmanagement.model.Priority;
 import ru.effectivemobile.taskmanagement.model.Status;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +85,9 @@ public class TaskResponseDto {
      */
     @Schema(description = "Email of the assigned user", example = "assignee@example.com")
     private String assigneeEmail;
+
+    private Date createdAt;
+    private Date updatedAt;
 
     /**
      * Email of the user who is assigned to the task.

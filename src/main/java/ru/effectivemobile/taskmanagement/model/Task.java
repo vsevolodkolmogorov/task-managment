@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,6 +65,7 @@ public class Task {
      */
     @ManyToOne
     @JoinColumn(name = "author_id")
+    @JsonManagedReference
     private User author;
 
     /**
@@ -69,9 +74,27 @@ public class Task {
      */
     @ManyToOne
     @JoinColumn(name = "assignee_id")
+    @JsonManagedReference
     private User assignee;
+
+    /**
+     * The creation timestamp of the task.
+     * Automatically populated when the task is created.
+     */
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    /**
+     * The update timestamp of the task.
+     * Automatically populated when the task is created.
+     */
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
 
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList;
+
 }
