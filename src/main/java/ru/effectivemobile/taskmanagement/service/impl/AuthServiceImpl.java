@@ -47,12 +47,13 @@ public class AuthServiceImpl implements AuthService {
 
         // Build and save the new user
         User user = User.builder()
+                .fullName(request.getFullName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))  // Password encryption
-                .role(Role.USER)  // Default role for a new user
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
                 .build();
 
-        userRepository.save(user);  // Save the user in the database
+        userRepository.save(user);
 
         // Generate a JWT token after successful registration
         String jwt = jwtService.generateToken(user);
