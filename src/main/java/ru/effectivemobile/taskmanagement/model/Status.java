@@ -19,8 +19,4 @@ public class Status {
 
     @Column(unique = true, nullable = false)
     private String code;
-
-    public boolean is(RoleCode code) {
-        return code.name().equals(this.code);
-    }
 }
