@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.validation.OnCreate;
 
 /**
@@ -50,6 +50,6 @@ public class TaskRequestUserDto implements TaskRequestDto  {
      */
     @Schema(description = "Current status of the task (e.g., PENDING, IN_PROGRESS, COMPLETED)", example = "PENDING")
     @NotNull(message = "Status must not be blank")
-    private Status status;
+    private StatusCode statusCode;
 }
 

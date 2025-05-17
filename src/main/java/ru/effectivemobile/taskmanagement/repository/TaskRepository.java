@@ -6,10 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.model.Task;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,7 +30,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "AND (:status IS NULL OR t.status = :status) " +
             "AND (:priority IS NULL OR t.priority = :priority)")
     Page<Task> findAllByFiltersAuthorAndAssignee(@Param("userId") Long userId,
-                                                 @Param("status") Status status,
+                                                 @Param("status") StatusCode statusCode,
                                                  @Param("priority") Priority priority,
                                                  Pageable pageable);
 
@@ -39,7 +38,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "AND (:priority IS NULL OR t.priority = :priority) " +
             "AND (:authorId IS NULL OR t.author.id = :authorId) " +
             "AND (:assigneeId IS NULL OR t.assignee.id = :assigneeId)")
-    Page<Task> findAllByFilters(@Param("status") Status status,
+    Page<Task> findAllByFilters(@Param("status") StatusCode statusCode,
                                 @Param("priority") Priority priority,
                                 @Param("authorId") Long authorId,
                                 @Param("assigneeId") Long assigneeId,

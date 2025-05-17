@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.effectivemobile.taskmanagement.dto.*;
 import ru.effectivemobile.taskmanagement.exceptions.*;
 import ru.effectivemobile.taskmanagement.model.*;
+import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.repository.*;
 import ru.effectivemobile.taskmanagement.service.TaskService;
 import ru.effectivemobile.taskmanagement.util.*;
@@ -23,6 +25,7 @@ public class TaskServiceImpl implements TaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
+    private final StatusRepository statusRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
@@ -43,7 +46,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " not found"));
 
-        if (user.getRole().equals(Role.USER) && !task.getAuthor().getId().equals(user.getId())) {
+        if (user.getRole().is(RoleCode.USER) && !task.getAuthor().getId().equals(user.getId())) {
             logger.error("Access denied: user {} is not the author of the task {}", user.getUsername(), id);
             throw new AccessDeniedException("The user is not the author of the task!");
         }
@@ -57,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
      * Admins can modify any task fields and assign any user.
      *
      * @param taskId the ID of the task to update
-     * @param dto the data for updating the task
+     * @param dto    the data for updating the task
      * @return the updated task as a DTO
      * @throws TaskNotFoundException if the task does not exist
      */
@@ -90,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
      * - Assignee can only update the status.
      *
      * @param taskId the ID of the task to update
-     * @param dto the data for updating the task
+     * @param dto    the data for updating the task
      * @return the updated task as a DTO
      * @throws TaskNotFoundException if the task does not exist
      * @throws AccessDeniedException if the user is neither author nor assignee
@@ -111,8 +114,9 @@ public class TaskServiceImpl implements TaskService {
             throw new AccessDeniedException("User is neither the author nor the assignee of the task");
         }
 
-        if (isAssignee && !isAuthor && dto.getStatus() != null) {
-            task.setStatus(dto.getStatus());
+        if (isAssignee && !isAuthor && dto.getStatusCode() != null) {
+            task.setStatus(statusRepository.findByCode(dto.getStatusCode().name())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid status")));
         }
 
         if (isAuthor) {
@@ -139,8 +143,15 @@ public class TaskServiceImpl implements TaskService {
         User user = currentUserProvider.getCurrentUser();
         logger.info("Admin user {} is creating a new task", user.getUsername());
 
+        Status status = statusRepository.findByCode(dto.getStatusCode().name())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid status"));
+
         User assignee = findUserById(dto.getAssigneeId());
-        Task task = TaskConverter.toEntity(dto, user, assignee);
+        Task task = TaskConverter.toEntity(dto, user, assignee, status);
+
+        task.setStatus(statusRepository.findByCode(dto.getStatusCode().name())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid status")));
+
         taskRepository.save(task);
 
         logger.info("Task with id {} successfully created by admin {}", task.getId(), user.getUsername());
@@ -159,7 +170,11 @@ public class TaskServiceImpl implements TaskService {
         User user = currentUserProvider.getCurrentUser();
         logger.info("User {} is creating a new task", user.getUsername());
 
-        Task task = TaskConverter.toEntity(dto, user);
+        Status status = statusRepository.findByCode(dto.getStatusCode().name())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid status"));
+
+        Task task = TaskConverter.toEntity(dto, user, status);
+
         taskRepository.save(task);
 
         logger.info("Task with id {} successfully created by user {}", task.getId(), user.getUsername());
@@ -180,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
         logger.info("User {} is retrieving task with id {}", user.getUsername(), id);
 
         Task task;
-        if (user.getRole().equals(Role.USER)) {
+        if (user.getRole().is(RoleCode.USER)) {
             task = taskRepository.findByIdAuthorAndAssignee(id, user.getId())
                     .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " not found"));
         } else {
@@ -197,24 +212,24 @@ public class TaskServiceImpl implements TaskService {
      * - Users can see only their own tasks.
      * - Admins can filter by authorId and assigneeId.
      *
-     * @param status optional filter by status
-     * @param priority optional filter by priority
-     * @param authorId optional filter (admin only)
+     * @param statusCode optional filter by status
+     * @param priority   optional filter by priority
+     * @param authorId   optional filter (admin only)
      * @param assigneeId optional filter (admin only)
-     * @param pageable pagination info
+     * @param pageable   pagination info
      * @return a page of task DTOs
      */
     @Override
-    public Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Long authorId, Long assigneeId, Pageable pageable) {
+    public Page<TaskResponseDto> getAllTasks(StatusCode statusCode, Priority priority, Long authorId, Long assigneeId, Pageable pageable) {
         User user = currentUserProvider.getCurrentUser();
         logger.info("User {} is retrieving tasks with filters: status={}, priority={}, authorId={}, assigneeId={}",
-                user.getUsername(), status, priority, authorId, assigneeId);
+                user.getUsername(), statusCode, priority, authorId, assigneeId);
 
         Page<Task> taskList;
-        if (user.getRole().equals(Role.USER)) {
-            taskList = taskRepository.findAllByFiltersAuthorAndAssignee(user.getId(), status, priority, pageable);
+        if (user.getRole().is(RoleCode.USER)) {
+            taskList = taskRepository.findAllByFiltersAuthorAndAssignee(user.getId(), statusCode, priority, pageable);
         } else {
-            taskList = taskRepository.findAllByFilters(status, priority, authorId, assigneeId, pageable);
+            taskList = taskRepository.findAllByFilters(statusCode, priority, authorId, assigneeId, pageable);
         }
 
         logger.info("Retrieved {} tasks successfully", taskList.getTotalElements());
@@ -236,13 +251,13 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Applies common fields from a task DTO to an existing task.
      *
-     * @param dto the DTO containing task fields
+     * @param dto  the DTO containing task fields
      * @param task the task entity to modify
      */
     private void applyDtoToTask(TaskRequestDto dto, Task task) {
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());
         if (dto.getDescription() != null) task.setDescription(dto.getDescription());
-        if (dto.getStatus() != null) task.setStatus(dto.getStatus());
+        if (dto.getStatusCode() != null) task.setStatus(statusRepository.findByCode(dto.getStatusCode().name()).orElseThrow(() -> new IllegalArgumentException("Invalid status")));
         if (dto.getPriority() != null) task.setPriority(dto.getPriority());
     }
 }
