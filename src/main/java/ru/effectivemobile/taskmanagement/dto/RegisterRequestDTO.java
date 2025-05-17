@@ -20,6 +20,10 @@ import lombok.Getter;
 @Getter
 public class RegisterRequestDTO {
 
+    @Schema(description = "User full name", example = "John Duo")
+    @NotBlank(message = "Full name cannot be empty")
+    private String fullName;
+
     /**
      * User's email address that will be used for registration.
      * <p>

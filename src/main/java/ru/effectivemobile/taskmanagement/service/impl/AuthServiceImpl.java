@@ -13,6 +13,8 @@ import ru.effectivemobile.taskmanagement.dto.RegisterRequestDTO;
 import ru.effectivemobile.taskmanagement.exceptions.EmailAlreadyRegisteredException;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.User;
+import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
+import ru.effectivemobile.taskmanagement.repository.RoleRepository;
 import ru.effectivemobile.taskmanagement.repository.UserRepository;
 import ru.effectivemobile.taskmanagement.service.AuthService;
 import org.slf4j.Logger;
@@ -28,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtServiceImpl jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RoleRepository roleRepository;
 
     /**
      * Registers a new user.
@@ -47,9 +50,11 @@ public class AuthServiceImpl implements AuthService {
 
         // Build and save the new user
         User user = User.builder()
+                .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))  // Password encryption
-                .role(Role.USER)  // Default role for a new user
+                .role(roleRepository.findByCode(RoleCode.USER.name())
+                        .orElseThrow(() -> new IllegalStateException("Role USER not found in DB")))
                 .build();
 
         userRepository.save(user);  // Save the user in the database

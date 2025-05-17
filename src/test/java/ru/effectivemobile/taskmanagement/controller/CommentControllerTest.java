@@ -15,6 +15,8 @@ import ru.effectivemobile.taskmanagement.dto.CommentRequestDTO;
 import ru.effectivemobile.taskmanagement.dto.CommentResponseDTO;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.User;
+import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
+import ru.effectivemobile.taskmanagement.repository.RoleRepository;
 import ru.effectivemobile.taskmanagement.service.CommentService;
 import ru.effectivemobile.taskmanagement.service.impl.JwtServiceImpl;
 import ru.effectivemobile.taskmanagement.service.impl.UserDetailsServiceImpl;
@@ -40,6 +42,9 @@ class CommentControllerTest {
     private CommentService commentService;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
     @TestConfiguration
@@ -59,11 +64,14 @@ class CommentControllerTest {
         }
     }
 
+    Role userRole = Role.builder().id(1L).code("USER").build();
+
     User user = User.builder()
             .email("user@gmail.com")
             .password("userPassword")
             .id(1L)
-            .role(Role.USER).build();
+            .role(userRole)
+            .build();
 
     long taskId = 1L;
     CommentRequestDTO requestDTO = new CommentRequestDTO("Test comment");

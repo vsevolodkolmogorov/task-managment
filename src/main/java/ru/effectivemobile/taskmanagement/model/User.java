@@ -1,10 +1,9 @@
 package ru.effectivemobile.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +23,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Table(name = "users")
 public class User implements UserDetails {
 
@@ -35,6 +35,11 @@ public class User implements UserDetails {
     private Long id;
 
     /**
+     * The full name of the user, used as the info about user.
+     */
+    private String fullName;
+
+    /**
      * The email of the user, used as the username for authentication.
      */
     private String email;
@@ -44,11 +49,10 @@ public class User implements UserDetails {
      */
     private String password;
 
-    /**
-     * The role assigned to the user (e.g., USER or ADMIN).
-     * Determines the user's access level and permissions within the system.
-     */
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonManagedReference
     private Role role;
 
     /**
@@ -56,6 +60,7 @@ public class User implements UserDetails {
      * This represents the tasks created by the user.
      */
     @OneToMany(mappedBy = "author")
+    @JsonBackReference
     private List<Task> authoredTasks;
 
     /**
@@ -63,6 +68,7 @@ public class User implements UserDetails {
      * This represents the tasks that are assigned to the user for completion.
      */
     @OneToMany(mappedBy = "assignee")
+    @JsonBackReference
     private List<Task> assignedTasks;
 
     /**
@@ -73,7 +79,7 @@ public class User implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.getCode()));
     }
 
     /**

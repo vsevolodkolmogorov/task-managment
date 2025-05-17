@@ -13,6 +13,7 @@ import ru.effectivemobile.taskmanagement.model.Comment;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.Task;
 import ru.effectivemobile.taskmanagement.model.User;
+import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
 import ru.effectivemobile.taskmanagement.repository.CommentRepository;
 import ru.effectivemobile.taskmanagement.repository.TaskRepository;
 import ru.effectivemobile.taskmanagement.service.CommentService;
@@ -65,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
         boolean isAuthor = task.getAuthor().getId().equals(user.getId());
         boolean isAssignee = task.getAssignee().getId().equals(user.getId());
 
-        if (user.getRole() != Role.ADMIN && !(isAuthor || isAssignee)) {
+        if (!user.getRole().is(RoleCode.ADMIN) && !(isAuthor || isAssignee)) {
             logger.warn("User with ID {} attempted to comment on task ID {} without sufficient privileges", user.getId(), taskId);
             throw new AccessDeniedException("User is not author or assignee of task!");
         }
