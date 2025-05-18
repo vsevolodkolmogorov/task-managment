@@ -1,26 +1,21 @@
 package ru.effectivemobile.taskmanagement.model;
 
-/**
- * Enum representing the priority levels of a task.
- * <p>
- * Defines the importance of a task in terms of priority. The priority level determines
- * the urgency or importance of the task and can be used for task scheduling, resource allocation, etc.
- * </p>
- */
-public enum Priority {
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    /**
-     * Low priority - tasks that are not urgent or can be delayed.
-     */
-    LOW,
+@Data
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Priority {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    /**
-     * Medium priority - tasks that are of moderate importance or urgency.
-     */
-    MEDIUM,
-
-    /**
-     * High priority - tasks that are urgent and should be handled as soon as possible.
-     */
-    HIGH
+    @Column(unique = true, nullable = false)
+    private String code;
 }

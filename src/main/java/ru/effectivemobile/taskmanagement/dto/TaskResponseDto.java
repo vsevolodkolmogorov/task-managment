@@ -2,7 +2,7 @@ package ru.effectivemobile.taskmanagement.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 
 import java.util.Date;
@@ -48,7 +48,7 @@ public class TaskResponseDto {
      * Example: "MEDIUM"
      */
     @Schema(description = "Priority level of the task (e.g., LOW, MEDIUM, HIGH)", example = "MEDIUM")
-    private Priority priority;
+    private PriorityCode priorityCode;
 
     /**
      * Current status of the task lifecycle.

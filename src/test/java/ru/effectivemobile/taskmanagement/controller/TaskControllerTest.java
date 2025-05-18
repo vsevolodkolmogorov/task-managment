@@ -20,7 +20,7 @@ import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
 import ru.effectivemobile.taskmanagement.exceptions.TaskNotFoundException;
-import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.model.User;
@@ -98,7 +98,7 @@ class TaskControllerTest {
             .title("test admin")
             .description("description test")
             .statusCode(StatusCode.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .priorityCode(PriorityCode.HIGH)
             .assigneeId(user.getId())
             .build();
 
@@ -109,7 +109,7 @@ class TaskControllerTest {
             .title("test user")
             .description("description test")
             .statusCode(StatusCode.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .priorityCode(PriorityCode.HIGH)
             .build();
 
     TaskRequestUserDto invalidUserDto = TaskRequestUserDto.builder()
@@ -120,7 +120,7 @@ class TaskControllerTest {
             .title("test user")
             .description("description test")
             .statusCode(StatusCode.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .priorityCode(PriorityCode.HIGH)
             .authorId(user.getId())
             .authorEmail(user.getEmail())
             .assigneeId(user.getId())
@@ -132,7 +132,7 @@ class TaskControllerTest {
             .title("test admin")
             .description("description test")
             .statusCode(StatusCode.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .priorityCode(PriorityCode.HIGH)
             .authorId(admin.getId())
             .authorEmail(admin.getEmail())
             .assigneeId(user.getId())
@@ -267,11 +267,11 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityHigh() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(any(), eq(PriorityCode.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&priority=HIGH"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriorityCode().toString()))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.number").value(0))
@@ -281,12 +281,12 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityAndStatus() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(eq(StatusCode.IN_PROGRESS), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(eq(StatusCode.IN_PROGRESS), eq(PriorityCode.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS&priority=HIGH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatusCode().toString()))
-                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriorityCode().toString()))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.number").value(0))

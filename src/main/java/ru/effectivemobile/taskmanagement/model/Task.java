@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 
 import java.util.Date;
 import java.util.List;
@@ -44,11 +44,9 @@ public class Task {
      */
     private String description;
 
-    /**
-     * Priority level of the task.
-     * Determines the urgency of the task (e.g., LOW, MEDIUM, HIGH).
-     */
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "priority_id")
+    @JsonManagedReference
     private Priority priority;
 
 

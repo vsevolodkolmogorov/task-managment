@@ -1,6 +1,6 @@
 package ru.effectivemobile.taskmanagement.dto;
 
-import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 
 /**
@@ -38,5 +38,5 @@ public interface TaskRequestDto {
      *
      * @return the priority of the task (e.g., "HIGH", "MEDIUM", "LOW")
      */
-    Priority getPriority();
+    PriorityCode getPriorityCode();
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.effectivemobile.taskmanagement.dto.*;
 import ru.effectivemobile.taskmanagement.exceptions.*;
 import ru.effectivemobile.taskmanagement.model.*;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
 import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.repository.*;
@@ -25,6 +26,7 @@ public class TaskServiceImpl implements TaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
+    private final PriorityRepository priorityRepository;
     private final StatusRepository statusRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
@@ -114,6 +116,7 @@ public class TaskServiceImpl implements TaskService {
             throw new AccessDeniedException("User is neither the author nor the assignee of the task");
         }
 
+        // check for user edite like assignee
         if (isAssignee && !isAuthor && dto.getStatusCode() != null) {
             task.setStatus(statusRepository.findByCode(dto.getStatusCode().name())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid status")));
@@ -146,8 +149,11 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusRepository.findByCode(dto.getStatusCode().name())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid status"));
 
+        Priority priority = priorityRepository.findByCode(dto.getPriorityCode().name())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid priority"));
+
         User assignee = findUserById(dto.getAssigneeId());
-        Task task = TaskConverter.toEntity(dto, user, assignee, status);
+        Task task = TaskConverter.toEntity(dto, user, assignee, status, priority);
 
         task.setStatus(statusRepository.findByCode(dto.getStatusCode().name())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid status")));
@@ -173,7 +179,10 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusRepository.findByCode(dto.getStatusCode().name())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid status"));
 
-        Task task = TaskConverter.toEntity(dto, user, status);
+        Priority priority = priorityRepository.findByCode(dto.getPriorityCode().name())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid priority"));
+
+        Task task = TaskConverter.toEntity(dto, user, status, priority);
 
         taskRepository.save(task);
 
@@ -213,23 +222,25 @@ public class TaskServiceImpl implements TaskService {
      * - Admins can filter by authorId and assigneeId.
      *
      * @param statusCode optional filter by status
-     * @param priority   optional filter by priority
+     * @param priorityCode   optional filter by priority
      * @param authorId   optional filter (admin only)
      * @param assigneeId optional filter (admin only)
      * @param pageable   pagination info
      * @return a page of task DTOs
      */
     @Override
-    public Page<TaskResponseDto> getAllTasks(StatusCode statusCode, Priority priority, Long authorId, Long assigneeId, Pageable pageable) {
+    public Page<TaskResponseDto> getAllTasks(StatusCode statusCode, PriorityCode priorityCode, Long authorId, Long assigneeId, Pageable pageable) {
         User user = currentUserProvider.getCurrentUser();
+        String statusCodeStr = (statusCode != null) ? statusCode.name() : null;
+        String priorityCodeStr = (priorityCode != null) ? priorityCode.name() : null;
         logger.info("User {} is retrieving tasks with filters: status={}, priority={}, authorId={}, assigneeId={}",
-                user.getUsername(), statusCode, priority, authorId, assigneeId);
+                user.getUsername(), statusCode, priorityCode, authorId, assigneeId);
 
         Page<Task> taskList;
         if (user.getRole().is(RoleCode.USER)) {
-            taskList = taskRepository.findAllByFiltersAuthorAndAssignee(user.getId(), statusCode, priority, pageable);
+            taskList = taskRepository.findAllByFiltersAuthorAndAssignee(user.getId(), statusCodeStr, priorityCodeStr, pageable);
         } else {
-            taskList = taskRepository.findAllByFilters(statusCode, priority, authorId, assigneeId, pageable);
+            taskList = taskRepository.findAllByFilters(statusCodeStr, priorityCodeStr, authorId, assigneeId, pageable);
         }
 
         logger.info("Retrieved {} tasks successfully", taskList.getTotalElements());
@@ -258,6 +269,6 @@ public class TaskServiceImpl implements TaskService {
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());
         if (dto.getDescription() != null) task.setDescription(dto.getDescription());
         if (dto.getStatusCode() != null) task.setStatus(statusRepository.findByCode(dto.getStatusCode().name()).orElseThrow(() -> new IllegalArgumentException("Invalid status")));
-        if (dto.getPriority() != null) task.setPriority(dto.getPriority());
+        if (dto.getPriorityCode() != null) task.setPriority(priorityRepository.findByCode(dto.getPriorityCode().name()).orElseThrow(() -> new IllegalArgumentException("Invalid priority")));
     }
 }
