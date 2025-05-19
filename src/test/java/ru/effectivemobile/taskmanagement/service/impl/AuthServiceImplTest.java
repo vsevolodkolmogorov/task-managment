@@ -69,7 +69,6 @@ class AuthServiceImplTest {
         when(userRepository.save(any(User.class))).thenReturn(USER);
         when(roleRepository.findByCode(any(String.class))).thenReturn(Optional.ofNullable(USER_ROLE));
         when(jwtService.generateToken(any(User.class))).thenReturn(JWT_TOKEN);
-
         AuthResponseDTO actual = authService.register(new RegisterRequestDTO("John Duo", "test@gmail.com", "testPassword"));
         Assertions.assertEquals(actual.getToken(), JWT_TOKEN);
         Assertions.assertEquals(actual.getUser().getUsername(), USER.getUsername());
