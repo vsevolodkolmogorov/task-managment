@@ -55,8 +55,6 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))  // Password encryption
                 .role(roleRepository.findByCode(RoleCode.USER.name())
                         .orElseThrow(() -> new IllegalStateException("Role USER not found in DB")))
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
                 .build();
         userRepository.save(user);
 
