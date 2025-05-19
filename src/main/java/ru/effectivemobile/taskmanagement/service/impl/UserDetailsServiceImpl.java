@@ -48,7 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getUsername(),  // The username (email) of the user.
                 user.getPassword(),  // The encoded password of the user.
                 // A user's role is assigned as a granted authority. "ROLE_" is prepended to the role name.
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().getCode()))
         );
     }
 }

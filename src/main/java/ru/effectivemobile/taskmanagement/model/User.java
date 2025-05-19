@@ -1,6 +1,7 @@
 package ru.effectivemobile.taskmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,11 +49,10 @@ public class User implements UserDetails {
      */
     private String password;
 
-    /**
-     * The role assigned to the user (e.g., USER or ADMIN).
-     * Determines the user's access level and permissions within the system.
-     */
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonManagedReference
     private Role role;
 
     /**
@@ -79,7 +79,7 @@ public class User implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.getCode()));
     }
 
     /**

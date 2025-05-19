@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.validation.OnCreate;
 import ru.effectivemobile.taskmanagement.validation.OnUpdate;
 
@@ -48,7 +48,7 @@ public class TaskRequestAdminDto implements TaskRequestDto {
      */
     @Schema(description = "Priority level of the task (e.g., LOW, MEDIUM, HIGH)", example = "HIGH")
     @NotNull(message = "Priority must not be blank", groups = OnCreate.class)
-    private Priority priority;
+    private PriorityCode priorityCode;
 
     /**
      * Current status of the task in its lifecycle.
@@ -58,7 +58,7 @@ public class TaskRequestAdminDto implements TaskRequestDto {
     @Schema(description = "Current status of the task (e.g., PENDING, IN_PROGRESS, COMPLETED)", example = "PENDING")
     @NotNull(message = "Status must not be null", groups = OnCreate.class)
     @NotBlank(message = "Status must not be blank", groups = OnCreate.class)
-    private Status status;
+    private StatusCode statusCode;
 
     /**
      * ID of the user assigned to the task.

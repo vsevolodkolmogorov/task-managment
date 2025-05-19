@@ -20,13 +20,12 @@ import ru.effectivemobile.taskmanagement.dto.LoginRequestDTO;
 import ru.effectivemobile.taskmanagement.dto.RegisterRequestDTO;
 import ru.effectivemobile.taskmanagement.model.Role;
 import ru.effectivemobile.taskmanagement.model.User;
+import ru.effectivemobile.taskmanagement.repository.RoleRepository;
 import ru.effectivemobile.taskmanagement.repository.UserRepository;
 import ru.effectivemobile.taskmanagement.service.CommentService;
 
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +35,9 @@ class AuthServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
 
     @Mock
     private JwtServiceImpl jwtService;
@@ -51,11 +53,13 @@ class AuthServiceImplTest {
 
     private User USER;
     private String JWT_TOKEN;
+    private Role USER_ROLE;
 
 
     @BeforeEach()
     void SetUp() {
-        USER = User.builder().email("test@gmail.com").id(1L).password("testPassword").role(Role.USER).build();
+        USER = User.builder().email("test@gmail.com").id(1L).password("testPassword").role(USER_ROLE).build();
+        USER_ROLE = Role.builder().id(1L).code("USER").build();
         JWT_TOKEN = "token";
     }
 
@@ -63,9 +67,9 @@ class AuthServiceImplTest {
     void register() {
         when(passwordEncoder.encode(any(String.class))).thenReturn("testPassword");
         when(userRepository.save(any(User.class))).thenReturn(USER);
+        when(roleRepository.findByCode(any(String.class))).thenReturn(Optional.ofNullable(USER_ROLE));
         when(jwtService.generateToken(any(User.class))).thenReturn(JWT_TOKEN);
-
-        AuthResponseDTO actual = authService.register(new RegisterRequestDTO("New user","test@gmail.com", "testPassword"));
+        AuthResponseDTO actual = authService.register(new RegisterRequestDTO("John Duo", "test@gmail.com", "testPassword"));
         Assertions.assertEquals(actual.getToken(), JWT_TOKEN);
         Assertions.assertEquals(actual.getUser().getUsername(), USER.getUsername());
         Assertions.assertEquals(actual.getUser().getPassword(), USER.getPassword());

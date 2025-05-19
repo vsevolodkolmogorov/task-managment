@@ -5,11 +5,8 @@ import org.springframework.data.domain.Pageable;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
-
-import java.util.List;
-import java.util.Optional;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 
 /**
  * Service interface for managing tasks within the task management system.
@@ -98,5 +95,5 @@ public interface TaskService {
      *
      * @return a list of all tasks as response DTOs
      */
-    Page<TaskResponseDto> getAllTasks(Status status, Priority priority, Long authorId, Long assigneeId, Pageable pageable);
+    Page<TaskResponseDto> getAllTasks(StatusCode statusCode, PriorityCode priorityCode, Long authorId, Long assigneeId, Pageable pageable);
 }

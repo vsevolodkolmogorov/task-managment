@@ -2,8 +2,8 @@ package ru.effectivemobile.taskmanagement.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 
 import java.util.Date;
 import java.util.List;
@@ -48,7 +48,7 @@ public class TaskResponseDto {
      * Example: "MEDIUM"
      */
     @Schema(description = "Priority level of the task (e.g., LOW, MEDIUM, HIGH)", example = "MEDIUM")
-    private Priority priority;
+    private PriorityCode priorityCode;
 
     /**
      * Current status of the task lifecycle.
@@ -56,7 +56,7 @@ public class TaskResponseDto {
      * Example: "IN_PROGRESS"
      */
     @Schema(description = "Current status of the task (e.g., TODO, IN_PROGRESS, DONE)", example = "IN_PROGRESS")
-    private Status status;
+    private StatusCode statusCode;
 
     /**
      * User ID of the person who created the task.

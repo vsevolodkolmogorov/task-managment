@@ -1,13 +1,12 @@
 package ru.effectivemobile.taskmanagement.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -45,18 +44,15 @@ public class Task {
      */
     private String description;
 
-    /**
-     * Priority level of the task.
-     * Determines the urgency of the task (e.g., LOW, MEDIUM, HIGH).
-     */
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "priority_id")
+    @JsonManagedReference
     private Priority priority;
 
-    /**
-     * Current status of the task.
-     * Indicates whether the task is PENDING, IN_PROGRESS, or COMPLETED.
-     */
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne
+    @JoinColumn(name = "status_id")
+    @JsonManagedReference
     private Status status;
 
     /**

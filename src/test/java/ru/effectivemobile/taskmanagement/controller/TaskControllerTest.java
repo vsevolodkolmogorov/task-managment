@@ -20,9 +20,9 @@ import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
 import ru.effectivemobile.taskmanagement.exceptions.TaskNotFoundException;
-import ru.effectivemobile.taskmanagement.model.Priority;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
 import ru.effectivemobile.taskmanagement.model.Role;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.model.User;
 import ru.effectivemobile.taskmanagement.service.TaskService;
 import ru.effectivemobile.taskmanagement.service.impl.JwtServiceImpl;
@@ -79,23 +79,26 @@ class TaskControllerTest {
         }
     }
 
+    Role userRole = Role.builder().id(1L).code("USER").build();
+    Role adminRole = Role.builder().id(2L).code("ADMIN").build();
+
     User user = User.builder()
             .email("user@gmail.com")
             .password("userPassword")
             .id(1L)
-            .role(Role.USER).build();
+            .role(userRole).build();
 
     User admin = User.builder()
             .email("admin@gmail.com")
             .password("adminPassword")
             .id(3L)
-            .role(Role.ADMIN).build();
+            .role(adminRole).build();
 
     TaskRequestAdminDto adminDto = TaskRequestAdminDto.builder()
             .title("test admin")
             .description("description test")
-            .status(Status.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .statusCode(StatusCode.IN_PROGRESS)
+            .priorityCode(PriorityCode.HIGH)
             .assigneeId(user.getId())
             .build();
 
@@ -105,8 +108,8 @@ class TaskControllerTest {
     TaskRequestUserDto userDto = TaskRequestUserDto.builder()
             .title("test user")
             .description("description test")
-            .status(Status.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .statusCode(StatusCode.IN_PROGRESS)
+            .priorityCode(PriorityCode.HIGH)
             .build();
 
     TaskRequestUserDto invalidUserDto = TaskRequestUserDto.builder()
@@ -116,8 +119,8 @@ class TaskControllerTest {
             .id(1L)
             .title("test user")
             .description("description test")
-            .status(Status.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .statusCode(StatusCode.IN_PROGRESS)
+            .priorityCode(PriorityCode.HIGH)
             .authorId(user.getId())
             .authorEmail(user.getEmail())
             .assigneeId(user.getId())
@@ -128,8 +131,8 @@ class TaskControllerTest {
             .id(1L)
             .title("test admin")
             .description("description test")
-            .status(Status.IN_PROGRESS)
-            .priority(Priority.HIGH)
+            .statusCode(StatusCode.IN_PROGRESS)
+            .priorityCode(PriorityCode.HIGH)
             .authorId(admin.getId())
             .authorEmail(admin.getEmail())
             .assigneeId(user.getId())
@@ -250,11 +253,11 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithStatusInProgress() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), any(), any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(eq(StatusCode.IN_PROGRESS), any(), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatus().toString()))
+                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatusCode().toString()))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.number").value(0))
@@ -264,11 +267,11 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityHigh() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(any(), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(any(), eq(PriorityCode.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&priority=HIGH"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriorityCode().toString()))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.number").value(0))
@@ -278,12 +281,12 @@ class TaskControllerTest {
     @Test
     void getAllTasksWithPriorityAndStatus() throws Exception {
         given(currentUserProvider.getCurrentUser()).willReturn(user);
-        given(taskService.getAllTasks(eq(Status.IN_PROGRESS), eq(Priority.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
+        given(taskService.getAllTasks(eq(StatusCode.IN_PROGRESS), eq(PriorityCode.HIGH), any(), any(), any(Pageable.class))).willReturn(pageUser);
 
         mockMvc.perform(get("/tasks?page=1&size=10&status=IN_PROGRESS&priority=HIGH"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatus().toString()))
-                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriority().toString()))
+                .andExpect(jsonPath("$.content[0].status").value(responseUser.getStatusCode().toString()))
+                .andExpect(jsonPath("$.content[0].priority").value(responseUser.getPriorityCode().toString()))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.number").value(0))

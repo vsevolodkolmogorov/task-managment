@@ -20,7 +20,6 @@ import lombok.Getter;
 @Getter
 public class RegisterRequestDTO {
 
-
     /**
      * User's email address that will be used for registration.
      * <p>

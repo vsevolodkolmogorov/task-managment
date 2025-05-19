@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestAdminDto;
 import ru.effectivemobile.taskmanagement.dto.TaskRequestUserDto;
 import ru.effectivemobile.taskmanagement.dto.TaskResponseDto;
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.service.TaskService;
 import ru.effectivemobile.taskmanagement.util.CurrentUserProvider;
 import ru.effectivemobile.taskmanagement.validation.OnCreate;
@@ -90,8 +90,8 @@ public class TaskController {
      * Retrieves a list of tasks filtered by optional parameters.
      * Users only see their tasks, admins can filter by author and assignee.
      *
-     * @param status     task status filter
-     * @param priority   task priority filter
+     * @param statusCode     task status filter
+     * @param priorityCode   task priority filter
      * @param authorId   author ID filter (admin only)
      * @param assigneeId assignee ID filter (admin only)
      * @param page       page number
@@ -101,17 +101,17 @@ public class TaskController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Page<TaskResponseDto>> getAllTasks(
-            @Parameter(description = "Filter by task status") @RequestParam(required = false) Status status,
-            @Parameter(description = "Filter by task priority") @RequestParam(required = false) Priority priority,
+            @Parameter(description = "Filter by task status") @RequestParam(required = false) StatusCode statusCode,
+            @Parameter(description = "Filter by task priority") @RequestParam(required = false) PriorityCode priorityCode,
             @Parameter(description = "Filter by author ID (Admins only)") @RequestParam(required = false) Long authorId,
             @Parameter(description = "Filter by assignee ID (Admins only)") @RequestParam(required = false) Long assigneeId,
             @Parameter(description = "Page number (zero-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size
     ) {
         log.info("Fetching tasks with filters: status={}, priority={}, authorId={}, assigneeId={}, page={}, size={}",
-                status, priority, authorId, assigneeId, page, size);
+                statusCode, priorityCode, authorId, assigneeId, page, size);
         Pageable pageable = PageRequest.of(page, size);
-        Page<TaskResponseDto> tasks = taskService.getAllTasks(status, priority, authorId, assigneeId, pageable);
+        Page<TaskResponseDto> tasks = taskService.getAllTasks(statusCode, priorityCode, authorId, assigneeId, pageable);
         log.info("Fetched {} tasks for page {} of size {}", tasks.getTotalElements(), page, size);
         return ResponseEntity.ok(tasks);
     }
@@ -124,7 +124,7 @@ public class TaskController {
      * @return the updated task
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestUserDto userDto) {
         log.info("Updating task with id={}. New data: {}", id, userDto);

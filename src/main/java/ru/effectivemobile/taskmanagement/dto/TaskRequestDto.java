@@ -1,7 +1,7 @@
 package ru.effectivemobile.taskmanagement.dto;
 
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 
 /**
  * Interface representing the data transfer object (DTO) for a task request.
@@ -31,12 +31,12 @@ public interface TaskRequestDto {
      *
      * @return the status of the task (e.g., "OPEN", "IN_PROGRESS", "COMPLETED")
      */
-    Status getStatus();
+    StatusCode getStatusCode();
 
     /**
      * Gets the priority of the task.
      *
      * @return the priority of the task (e.g., "HIGH", "MEDIUM", "LOW")
      */
-    Priority getPriority();
+    PriorityCode getPriorityCode();
 }

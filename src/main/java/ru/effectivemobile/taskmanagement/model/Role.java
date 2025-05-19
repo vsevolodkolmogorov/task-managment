@@ -1,20 +1,26 @@
 package ru.effectivemobile.taskmanagement.model;
 
-/**
- * Enum representing the roles of a user in the system.
- * <p>
- * Defines the different user roles that dictate the level of access and permissions within the application.
- * </p>
- */
-public enum Role {
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.effectivemobile.taskmanagement.model.enums.RoleCode;
 
-    /**
-     * Regular user role - typically has limited access and can perform basic actions.
-     */
-    USER,
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Role {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    /**
-     * Admin role - has elevated permissions, including the ability to manage users and tasks.
-     */
-    ADMIN
+    @Column(unique = true, nullable = false)
+    private String code;
+
+    public boolean is(RoleCode code) {
+        return code.name().equals(this.code);
+    }
 }

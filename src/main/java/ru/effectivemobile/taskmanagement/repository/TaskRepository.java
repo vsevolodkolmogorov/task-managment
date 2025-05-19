@@ -5,11 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.effectivemobile.taskmanagement.model.Priority;
-import ru.effectivemobile.taskmanagement.model.Status;
+import ru.effectivemobile.taskmanagement.model.enums.PriorityCode;
+import ru.effectivemobile.taskmanagement.model.enums.StatusCode;
 import ru.effectivemobile.taskmanagement.model.Task;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,19 +27,19 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @return a list of tasks associated with the given user, or an empty list if no tasks are found
      */
     @Query("SELECT t FROM Task t WHERE (t.author.id = :userId OR t.assignee.id = :userId) " +
-            "AND (:status IS NULL OR t.status = :status) " +
-            "AND (:priority IS NULL OR t.priority = :priority)")
+            "AND (:status IS NULL OR t.status.code = :status) " +
+            "AND (:priority IS NULL OR t.priority.code = :priority)")
     Page<Task> findAllByFiltersAuthorAndAssignee(@Param("userId") Long userId,
-                                                 @Param("status") Status status,
-                                                 @Param("priority") Priority priority,
+                                                 @Param("status") String statusCode,
+                                                 @Param("priority") String priorityCode,
                                                  Pageable pageable);
 
-    @Query("SELECT t FROM Task t WHERE (:status IS NULL OR t.status = :status) " +
-            "AND (:priority IS NULL OR t.priority = :priority) " +
+    @Query("SELECT t FROM Task t WHERE (:status IS NULL OR t.status.code = :status) " +
+            "AND (:priority IS NULL OR t.priority.code = :priority) " +
             "AND (:authorId IS NULL OR t.author.id = :authorId) " +
             "AND (:assigneeId IS NULL OR t.assignee.id = :assigneeId)")
-    Page<Task> findAllByFilters(@Param("status") Status status,
-                                @Param("priority") Priority priority,
+    Page<Task> findAllByFilters(@Param("status") String statusCode,
+                                @Param("priority") String priorityCode,
                                 @Param("authorId") Long authorId,
                                 @Param("assigneeId") Long assigneeId,
                                 Pageable pageable);
