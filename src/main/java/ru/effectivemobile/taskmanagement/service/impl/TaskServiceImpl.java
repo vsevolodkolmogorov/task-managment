@@ -81,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
             task.setAssignee(assignee);
         }
 
-        task.setAuthor(user);
+        task.setAuthor(task.getAuthor());
         task.setId(taskId);
         taskRepository.save(task);
 

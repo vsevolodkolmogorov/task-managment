@@ -22,6 +22,11 @@ public class RoleController {
 
     private final RoleRepository roleRepository;
 
+    /**
+     * Get a roles of users in the system.
+     *
+     * @return a response with a list of roles.
+     */
     @GetMapping
     public List<RoleDTO> getAllRoles() {
         return roleRepository.findAll()

@@ -49,7 +49,8 @@ public class TaskRequestUserDto implements TaskRequestDto  {
      * Example: "PENDING"
      */
     @Schema(description = "Current status of the task (e.g., PENDING, IN_PROGRESS, COMPLETED)", example = "PENDING")
-    @NotNull(message = "Status must not be blank")
+    @NotNull(message = "Status must not be blank", groups = OnCreate.class)
+    @NotBlank(message = "Status must not be blank",  groups = OnCreate.class)
     private StatusCode statusCode;
 }
 

@@ -124,7 +124,7 @@ public class TaskController {
      * @return the updated task
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Validated(OnUpdate.class)
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable Long id, @Valid @RequestBody TaskRequestUserDto userDto) {
         log.info("Updating task with id={}. New data: {}", id, userDto);

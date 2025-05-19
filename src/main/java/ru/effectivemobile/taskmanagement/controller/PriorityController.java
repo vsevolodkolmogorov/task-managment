@@ -22,6 +22,11 @@ public class PriorityController {
 
     private final PriorityRepository priorityRepository;
 
+    /**
+     * Get a priorities of the tasks in the system.
+     *
+     * @return a response with a list of priorities.
+     */
     @GetMapping
     public List<PriorityDTO> getAllPriorities() {
         return priorityRepository.findAll()

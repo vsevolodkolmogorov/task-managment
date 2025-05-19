@@ -23,6 +23,11 @@ public class StatusController {
 
     private final StatusRepository statusRepository;
 
+    /**
+     * Get a status of the tasks in the system.
+     *
+     * @return a response with a list of status.
+     */
     @GetMapping
     public List<StatusDTO> getAllStatus() {
         return statusRepository.findAll()
