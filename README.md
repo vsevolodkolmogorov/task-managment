@@ -1,4 +1,4 @@
-# Task Management Project ( Effectivemobile test task )
+# Test Task Management
 
 ## Description
 This is a task management application that uses Spring Boot and PostgreSQL as the database.
