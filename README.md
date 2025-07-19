@@ -6,8 +6,6 @@
 
 This is a task management application that uses Spring Boot and PostgreSQL as the database.
 
----
-
 ## 🧩 Architecture
 
 This project consists of the following services:
@@ -19,7 +17,6 @@ This project consists of the following services:
 | **jwt-service**    | Provides JWT generation, validation, and security filters for authentication flow |
 | **comment-service**| Manages comments linked to tasks, providing full CRUD functionality |
 
----
 
 ## 🛠️ Tech Stack
 
@@ -29,7 +26,6 @@ This project consists of the following services:
 - Docker
 - Docker Compose
 
----
 
 ## 🚀 Features
 
@@ -53,8 +49,6 @@ This project consists of the following services:
 - CRUD operations on comments
 - Links comments to specific tasks
 - Fetch comments by author or task ID
-
----
 
 ## ▶️ How to Run
 
