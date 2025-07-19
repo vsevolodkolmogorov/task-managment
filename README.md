@@ -1,16 +1,62 @@
-# Test Task Management
+### 🏷️ Type: Interview Assignment
 
-## Description
+# Task Management
+
+## 📌 Overview
+
 This is a task management application that uses Spring Boot and PostgreSQL as the database.
 
-## Technologies:
+---
+
+## 🧩 Architecture
+
+This project consists of the following services:
+
+| Service            | Description |
+|--------------------|-------------|
+| **task-service**   | Manages tasks: CRUD operations, pagination, filtering by status, priority, author, and assignee |
+| **auth-service**   | Handles user authentication, registration, and role-based authorization |
+| **jwt-service**    | Provides JWT generation, validation, and security filters for authentication flow |
+| **comment-service**| Manages comments linked to tasks, providing full CRUD functionality |
+
+---
+
+## 🛠️ Tech Stack
+
 - Java 17
 - Spring Boot
 - PostgreSQL
 - Docker
 - Docker Compose
 
-## Local Setup
+---
+
+## 🚀 Features
+
+### auth-service
+- User registration and login
+- Role-based authorization
+- JWT token generation and validation
+
+### jwt-service
+- Generates and validates JWT tokens
+- Provides security filters for authentication
+- Ensures secure communication between services
+
+### task-service
+- Full task management (CRUD operations)
+- Pagination for listing tasks
+- Filtering by status, priority, author, and assignee
+- Tracks created and updated timestamps
+
+### comment-service
+- CRUD operations on comments
+- Links comments to specific tasks
+- Fetch comments by author or task ID
+
+---
+
+## ▶️ How to Run
 
 ### Steps:
 
